@@ -36,3 +36,38 @@ print(f"\nData value range:")
 print(f"Min: {river_raster.min().values}")
 print(f"Max: {river_raster.max().values}")
 print(f"Unique values: {len(river_raster.values[~np.isnan(river_raster.values)])}")
+
+# First, load your DEM data
+# Replace "your_dem_file.tif" with your actual DEM filename
+dem = rxr.open_rasterio("/content/USGS_1_n52w119_20130911.tif")
+
+# Use the river bounds to clip the DEM
+river_bounds = river_raster.rio.bounds()
+buffer = 0.01
+
+xmin = river_bounds[0] - buffer
+ymin = river_bounds[1] - buffer  
+xmax = river_bounds[2] + buffer
+ymax = river_bounds[3] + buffer
+
+print(f"Clipping DEM with bounds: {xmin}, {ymin}, {xmax}, {ymax}")
+
+# Clip DEM to match river area
+dem_clipped = dem.sel(x=slice(xmin, xmax), y=slice(ymax, ymin))
+
+print(f"DEM clipped shape: {dem_clipped.shape}")
+print(f"DEM has data: {not dem_clipped.isnull().all()}")
+
+# Plot both DEM and river data
+fig, ax = plt.subplots(figsize=(12, 10))
+
+# Plot DEM as background
+dem_clipped.squeeze().plot.imshow(ax=ax, cmap='terrain', alpha=0.7)
+
+# Plot river data on top
+river_raster.plot.imshow(ax=ax, cmap='Blues', alpha=0.8)
+
+ax.set_title("DEM with River Data")
+ax.set_xlabel("Longitude")
+ax.set_ylabel("Latitude")
+plt.show()

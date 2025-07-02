@@ -15,3 +15,4 @@ import rioxarray    # Working with geospatial data in xarray
 
 import matplotlib.pyplot as plt
 from datashader.transfer_functions import shade, stack
+
